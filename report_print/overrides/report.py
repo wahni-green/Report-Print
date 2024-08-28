@@ -1,3 +1,6 @@
+# Copyright (c) 2024, Codeventurers
+# For license information, please see license.txt
+
 
 import frappe
 import os
