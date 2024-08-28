@@ -1,7 +1,11 @@
-## Report Print
+# Report Print Customization
 
-A custom solution for enabling report printing
+## Overview
+This repository provides a customization for the Frappe framework that allows report printing on remote servers, similar to how Doctype printing is currently handled. This feature enables users to generate, print, and manage reports remotely.
 
-#### License
+## Features
+- Enables remote printing of reports.
+- Seamlessly integrates with the existing Frappe framework.
+- Supports multiple report formats.
+- Customizable to meet specific printing requirements.
 
-mit
