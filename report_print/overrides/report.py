@@ -1,4 +1,4 @@
-# Copyright (c) 2024, Codeventurers
+# Copyright (c) 2024, Code Venturers and contributors
 # For license information, please see license.txt
 
 
@@ -7,6 +7,8 @@ import os
 from frappe.desk.query_report import get_report_doc
 from frappe.modules import get_module_path, scrub
 from frappe.model.utils import render_include
+from frappe.utils import get_html_format
+
 
 
 @frappe.whitelist()
@@ -19,7 +21,12 @@ def get_script(report_name):
 	# custom modules are virtual modules those exists in DB but not in disk.
 	module_path = "" if is_custom_module else get_module_path(module)
 	report_folder = module_path and os.path.join(module_path, "report", scrub(report.name))
-	script_path = report_folder and os.path.join(report_folder, scrub(report.name) + ".js")
+
+	report_override_js = frappe.get_hooks("report_override_js", {})
+	if report_override_js.get(report_name):
+		script_path = os.path.join(frappe.get_app_path("swarnam"), report_override_js.get(report_name)[0])
+	else:
+		script_path = report_folder and os.path.join(report_folder, scrub(report.name) + ".js")
 
 	script = None
 	if os.path.exists(script_path):
@@ -27,7 +34,15 @@ def get_script(report_name):
 			script = f.read()
 			script += f"\n\n//# sourceURL={scrub(report.name)}.js"
 
-	html_format = get_html_format()
+	if report_print := frappe.db.get_value(
+		"Report Print Format", {"default": 1, "report": report.name, "disabled": 0}, "html"
+	):
+		html_format = report_print
+	else:
+		print_path = report_folder and os.path.join(
+			report_folder, scrub(report.name) + ".html"
+		)
+		html_format = get_html_format(print_path)
 
 	if not script and report.javascript:
 		script = report.javascript
@@ -43,6 +58,3 @@ def get_script(report_name):
 		"filters": report.filters,
 		"custom_report_name": report.name if report.get("is_custom_report") else None,
 	}
-
-def get_html_format():
-	return frappe.db.get_value("Report Print Format", "", "html")
