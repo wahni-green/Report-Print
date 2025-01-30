@@ -10,8 +10,9 @@ from frappe.model.document import Document
 
 class ReportPrintFormat(Document):
 	def validate(self):
-		if self.html:
-			validate_template(self.html)
+		pass
+		# if self.html:
+		# 	validate_template(self.html)
 
 	@frappe.whitelist()
 	def make_default(self):
